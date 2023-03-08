@@ -1,5 +1,6 @@
 import turtle
 import math
+import random
 
 X_START = -290
 Y_START = 250
@@ -12,8 +13,93 @@ posizioni = {7:(X_START+(LATO/3)/2, Y_START-(LATO/3)/2), 8:(X_START+LATO/2, Y_ST
 caselle = [{0:False,1:False,2:False,3:False,4:False,5:False,6:False,7:False,8:False,9:False}
             ,{0:False,1:False,2:False,3:False,4:False,5:False,6:False,7:False,8:False,9:False}]
 
+mat = [[1,1,1],[1,1,1],[1,1,1]]         #7,8,9  4,5,6  1,2,3
+pos = {1: [2,0], 2: [2,1], 3:[2,2], 4:[1,0], 5:[1,1], 6:[1,2], 7:[0,0], 8:[0,1], 9:[0,2]}   
+
+somma_rig = [0,0,0]
+somma_col = [0,0,0]
+somma_dia = [0,0]
+
 curs = turtle.Turtle()
 finesta = turtle.Screen()
+
+def somma():
+    for i in range (0,3):
+        somma_rig[i] = mat[i][0]*mat[i][1]*mat[i][2]
+        somma_col[i] = mat[0][i]*mat[1][i]*mat[2][i]
+    somma_dia[0] = mat[0][0]*mat[1][1]*mat[2][2]
+    somma_dia[1] = mat[0][2]*mat[1][1]*mat[2][0]
+
+def scelta():
+    somma()
+
+    """
+    n = 5
+    if (caselle[0][n] == False and caselle[1][n] == False):
+        return n
+    """
+    
+    for i in range (0,3):#righe 
+        if somma_rig[i] == 9:
+            for k in range (9-i*3-2,9-i*3+1):
+                if caselle[0][k] == False:
+                    return k
+
+    for i in range (0,3):#colonne 
+        if somma_col[i] == 9:
+            for k in range (0,3):
+                if caselle[1][i+1+k*3] == False:
+                    return i+1+k*3
+
+    for i in range (0,3):#righe
+        if somma_rig[i] == 25:
+            for k in range (9-i*3-2,9-i*3+1):
+                if caselle[0][k] == False:
+                    return k
+
+    for i in range (0,3):#colonne                
+        if somma_col[i] == 25:
+            for k in range (0,3):
+                if caselle[1][i+1+k*3] == False:
+                    return i+1+k*3
+        
+    if somma_dia[0] == 9:#753
+        if caselle[0][7] == False:    
+            return 7
+        if caselle[0][5] == False:
+            return 5
+        if caselle[0][3] == False:
+            return 3
+
+    if somma_dia[0] == 9:#951
+        if caselle[0][7] == False:    
+            return 9
+        if caselle[0][5] == False:
+            return 5
+        if caselle[0][3] == False:
+            return 1
+
+    if somma_dia[1] == 25:
+        if caselle[1][9] == False:    
+            return 9
+        if caselle[1][5] == False:
+            return 5
+        if caselle[1][1] == False:
+            return 1 
+
+    if somma_dia[1] == 25:
+        if caselle[1][7] == False:    
+            return 7
+        if caselle[1][5] == False:
+            return 5
+        if caselle[1][3] == False:
+            return 3 
+    
+    while (1):
+        n = random.randint(1,9)
+        
+        if caselle[0][n] == False and caselle[1][n] == False:
+            return n
 
 def disegnaCroce(x,y):
     curs.penup()
@@ -108,7 +194,6 @@ def winObl1():
     curs.setposition(posizioni[7][0]-15,posizioni[7][1]+15)
     curs.pendown()
 
-    curs.speed(1)
     curs.width(15)
     curs.color("black")
     curs.right(45)
@@ -120,7 +205,6 @@ def winObl1():
     curs.setposition(posizioni[7][0]-15,posizioni[7][1]+15)
     curs.pendown()
 
-    curs.speed(1)
     curs.width(8)
     curs.color("lime")
     curs.right(45)
@@ -169,6 +253,8 @@ def win(k):
     
     
 class Tris():
+
+    curs.hideturtle()
 
     def disegnaCampo(self):
         curs.speed(0)
@@ -225,22 +311,31 @@ class Tris():
             curs.forward(LATO)
 
     def tris(self):
-
-        funzioni = {0:disegnaCerchio, 1:disegnaCroce}
         
         i=0
-        while i<9:
+        while i<5:
             
+            s = scelta()
+            print(s)
+            disegnaCerchio(posizioni[s][0], posizioni[s][1])
+            caselle[1][s] = True
+            mat[pos[s][0]][pos[s][1]] = 3
+            
+            win(i%2-1)
+
             n = (int)(input("Inserisci: "))
             
             if n<1 or n>9:
                 print("casella errata")
             else:
                 if not caselle[0][n] and (not caselle[1][n]):
-                    funzioni[i%2](posizioni[n][0],posizioni[n][1])
-                    caselle[i%2][n]=True
-                    i+=1
+                    disegnaCroce(posizioni[n][0],posizioni[n][1])
+                    caselle[0][n] = True
+                    mat[pos[n][0]][pos[n][1]] = 5    
+                    
                     win(i%2-1)
+
+                    i+=1
                 else:
                     print("Gia inserita")
         
